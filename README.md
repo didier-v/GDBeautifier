@@ -1,11 +1,12 @@
 # GDBeautifier
 A GDScript beautifier for [Godot Engine](https://github.com/godotengine/godot)
+
 ![image](assets/gd_beautifier_panel.png)
 
-# Requirements
+## Requirements
 This addon is compatible with Godot 4.
 
-# Features
+## Features
 GDBeautifier performs several cleaning tasks.
  * Removes spaces and tabs in empty lines
  * Removes spaces at the end of lines
@@ -16,13 +17,13 @@ GDBeautifier performs several cleaning tasks.
 
 The addon ignores anything inside strings and comments.
 
-# Installation
+## Installation
 Add the addons folder to your project, and enable it in the plugins panel of the project settings.
 
-# Usage
+## Usage
 The beautifier panel is in the top left dock. It appears when the script editor is visible and a script is selected.  
 Select the desired options and click on beautify. The current script will be beautified.  
 You can undo if you change your mind.
 
-# Licence
+## Licence
 [Apache License 2.0](LICENSE.md)
