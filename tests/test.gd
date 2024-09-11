@@ -77,7 +77,12 @@ func test(a:int, b    :   int, c, d, e, f, g) -> z :
 	a = a*b
 	a=a* b *c *  d
 
-
+if $node/test:
+	var node_test = $node/test
+	var node_test = $node/test.text
+	$node/test.text="test"
+	$node/test = space/time
+	$node/test	=	tab/time
 
 	""".split("\n")
 

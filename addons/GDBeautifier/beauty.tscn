@@ -66,13 +66,13 @@ layout_mode = 2
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
-[node name="ExpandNodes" type="CheckBox" parent="ScrollContainer/VBoxContainer/HBoxSpaces"]
+[node name="IgnoreNodes" type="CheckBox" parent="ScrollContainer/VBoxContainer/HBoxSpaces"]
 unique_name_in_owner = true
 layout_mode = 2
-tooltip_text = "Set 2 empty lines before functions"
-text = "Add spaces around / symbols inside $ node references"
+tooltip_text = "Add spaces around / symbols inside $ node references"
+text = "Ignore '/' symbols inside $ node references (experimental)"
 
-[node name="OneLinesBeforeFuncCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer"]
+[node name="OneLineBeforeFuncCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Set 1 empty line before functions"
@@ -93,9 +93,9 @@ text = "Set 2 empty lines before functions"
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/EndOfScriptCheck" to="." method="_on_toggle"]
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/SpacesOperatorsCheck" to="." method="_on_spaces_operators_check_toggled"]
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/SpacesOperatorsCheck" to="." method="_on_toggle"]
-[connection signal="toggled" from="ScrollContainer/VBoxContainer/HBoxSpaces/ExpandNodes" to="." method="_on_expand_nodes_toggled"]
-[connection signal="toggled" from="ScrollContainer/VBoxContainer/HBoxSpaces/ExpandNodes" to="." method="_on_toggle"]
-[connection signal="toggled" from="ScrollContainer/VBoxContainer/OneLinesBeforeFuncCheck" to="." method="_on_one_lines_before_func_check_toggled"]
-[connection signal="toggled" from="ScrollContainer/VBoxContainer/OneLinesBeforeFuncCheck" to="." method="_on_toggle"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/HBoxSpaces/IgnoreNodes" to="." method="_on_ignore_nodes_toggled"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/HBoxSpaces/IgnoreNodes" to="." method="_on_toggle"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/OneLineBeforeFuncCheck" to="." method="_on_one_line_before_func_check_toggled"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/OneLineBeforeFuncCheck" to="." method="_on_toggle"]
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/TwoLinesBeforeFuncCheck" to="." method="_on_two_lines_before_func_check_toggled"]
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/TwoLinesBeforeFuncCheck" to="." method="_on_toggle"]

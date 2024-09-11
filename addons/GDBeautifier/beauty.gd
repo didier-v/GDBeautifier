@@ -14,8 +14,8 @@ var source_lines: PackedStringArray
 @onready var endOfScriptCheck = %EndOfScriptCheck
 @onready var endOfLinesCheck = %EndOfLinesCheck
 @onready var spacesOperatorsCheck = %SpacesOperatorsCheck
-@onready var expandNodes = %ExpandNodes
-@onready var oneLinesBeforeFuncCheck = %OneLinesBeforeFuncCheck
+@onready var ignoreNodes = %IgnoreNodes
+@onready var oneLineBeforeFuncCheck = %OneLineBeforeFuncCheck
 @onready var twoLinesBeforeFuncCheck = %TwoLinesBeforeFuncCheck
 
 ## Array of regular expresessions used to beautify
@@ -66,8 +66,8 @@ func _ready():
 	endOfLinesCheck.tooltip_text = endOfLinesCheck.text
 	endOfScriptCheck.tooltip_text = endOfScriptCheck.text
 	spacesOperatorsCheck.tooltip_text = spacesOperatorsCheck.text
-	expandNodes.tooltip_text = expandNodes.text
-	oneLinesBeforeFuncCheck.tooltip_text = oneLinesBeforeFuncCheck.text
+	ignoreNodes.tooltip_text = ignoreNodes.text
+	oneLineBeforeFuncCheck.tooltip_text = oneLineBeforeFuncCheck.text
 	twoLinesBeforeFuncCheck.tooltip_text = twoLinesBeforeFuncCheck.text
 
 ## Sets the current script editor.
@@ -90,7 +90,7 @@ func _on_beautify_pressed():
 	source_lines = current_script.source_code.split("\n")
 	if spacesOperatorsCheck.button_pressed:
 		_apply_cleaners()
-	if oneLinesBeforeFuncCheck.button_pressed:
+	if oneLineBeforeFuncCheck.button_pressed:
 		_clean_func(1)
 	if twoLinesBeforeFuncCheck.button_pressed:
 		_clean_func(2)
@@ -102,14 +102,14 @@ func _on_beautify_pressed():
 		_clean_end_of_lines()
 
 
-func _on_expand_nodes_toggled(button_pressed):
+func _on_ignore_nodes_toggled(button_pressed):
 	if button_pressed:
 		spacesOperatorsCheck.button_pressed = true
 
 
 func _on_spaces_operators_check_toggled(button_pressed):
 	if not button_pressed:
-		expandNodes.button_pressed = false
+		ignoreNodes.button_pressed = false
 
 
 func _on_end_of_lines_check_toggled(button_pressed):
@@ -122,14 +122,14 @@ func _on_clean_empty_lines_check_toggled(button_pressed):
 		endOfLinesCheck.button_pressed = false
 
 
-func _on_one_lines_before_func_check_toggled(button_pressed):
+func _on_one_line_before_func_check_toggled(button_pressed):
 	if button_pressed:
 		twoLinesBeforeFuncCheck.button_pressed = false
 
 
 func _on_two_lines_before_func_check_toggled(button_pressed):
 	if button_pressed:
-		oneLinesBeforeFuncCheck.button_pressed = false
+		oneLineBeforeFuncCheck.button_pressed = false
 
 
 func _on_toggle(button_pressed):
@@ -140,7 +140,8 @@ func _on_toggle(button_pressed):
 func _save_preferences():
 	var config_file = ConfigFile.new()
 	config_file.set_value("prefs", "spacesOperatorsCheck", spacesOperatorsCheck.button_pressed)
-	config_file.set_value("prefs", "oneLinesBeforeFuncCheck", oneLinesBeforeFuncCheck.button_pressed)
+	config_file.set_value("prefs", "ignoreNodes", ignoreNodes.button_pressed)
+	config_file.set_value("prefs", "oneLineBeforeFuncCheck", oneLineBeforeFuncCheck.button_pressed)
 	config_file.set_value("prefs", "twoLinesBeforeFuncCheck", twoLinesBeforeFuncCheck.button_pressed)
 	config_file.set_value("prefs", "cleanEmptyLinesCheck", cleanEmptyLinesCheck.button_pressed)
 	config_file.set_value("prefs", "endOfScriptCheck", endOfScriptCheck.button_pressed)
@@ -155,7 +156,8 @@ func _load_preferences():
 	if err != OK:
 		return
 	spacesOperatorsCheck.button_pressed = config_file.get_value("prefs", "spacesOperatorsCheck", true)
-	oneLinesBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "oneLinesBeforeFuncCheck", true)
+	ignoreNodes.button_pressed = config_file.get_value("prefs", "ignoreNodes", true)
+	oneLineBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "oneLineBeforeFuncCheck", true)
 	twoLinesBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "twoLinesBeforeFuncCheck", true)
 	cleanEmptyLinesCheck.button_pressed = config_file.get_value("prefs", "cleanEmptyLinesCheck", true)
 	endOfScriptCheck.button_pressed = config_file.get_value("prefs", "endOfScriptCheck", true)
@@ -195,7 +197,7 @@ func _clean_func(num_lines):
 	#F func
 	#C comment
 	#E empty
-	#expected result:  EEC*F
+	#expected result:  EC*F (1 line) or EEC*F (2 lines)
 
 	var func_index = -1
 	var i = source_lines.size()
@@ -280,7 +282,7 @@ func _get_quote_ranges(line: String) -> Array:
 			i += 1
 
 		#added code to treat node references as quotes
-		if not expandNodes.button_pressed:
+		if ignoreNodes.button_pressed:
 			if not in_string:
 				if char == '$':
 					in_node = true
@@ -295,11 +297,10 @@ func _get_quote_ranges(line: String) -> Array:
 						node_end_pos = i
 						quote_ranges.append({"start": node_start_pos, "end": node_end_pos})
 						in_node = false
-
 		i += 1
 
 	#added code to treat node references as quotes
-	if not expandNodes.button_pressed:
+	if ignoreNodes.button_pressed:
 		#if node reference is at EOL
 		if in_node:
 			node_end_pos = i-1
