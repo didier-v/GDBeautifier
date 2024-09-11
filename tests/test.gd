@@ -79,6 +79,14 @@ func test(a:int, b    :   int, c, d, e, f, g) -> z :
 	
 	
 	
+	if $node/test:
+	var node_test = $node/test
+	var node_text = $node/test.text
+	$node/test.text="node/test"
+	$node/test = "spaces"
+	$node/test	=	"tabs"
+	
+	
 	""".split("\n")
 
 
