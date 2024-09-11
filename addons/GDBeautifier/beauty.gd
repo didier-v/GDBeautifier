@@ -14,9 +14,9 @@ var source_lines: PackedStringArray
 @onready var endOfScriptCheck = %EndOfScriptCheck
 @onready var endOfLinesCheck = %EndOfLinesCheck
 @onready var spacesOperatorsCheck = %SpacesOperatorsCheck
+@onready var expandNodes = %ExpandNodes
 @onready var oneLinesBeforeFuncCheck = %OneLinesBeforeFuncCheck
 @onready var twoLinesBeforeFuncCheck = %TwoLinesBeforeFuncCheck
-@onready var expandNodes = %ExpandNodes
 
 ## Array of regular expresessions used to beautify
 @onready var cleaners: Array[Cleaner] = [
@@ -66,6 +66,7 @@ func _ready():
 	endOfLinesCheck.tooltip_text = endOfLinesCheck.text
 	endOfScriptCheck.tooltip_text = endOfScriptCheck.text
 	spacesOperatorsCheck.tooltip_text = spacesOperatorsCheck.text
+	expandNodes.tooltip_text = expandNodes.text
 	oneLinesBeforeFuncCheck.tooltip_text = oneLinesBeforeFuncCheck.text
 	twoLinesBeforeFuncCheck.tooltip_text = twoLinesBeforeFuncCheck.text
 
@@ -99,6 +100,16 @@ func _on_beautify_pressed():
 		_clean_end_of_script()
 	if endOfLinesCheck.button_pressed:
 		_clean_end_of_lines()
+
+
+func _on_expand_nodes_toggled(button_pressed):
+	if button_pressed:
+		spacesOperatorsCheck.button_pressed = true
+
+
+func _on_spaces_operators_check_toggled(button_pressed):
+	if not button_pressed:
+		expandNodes.button_pressed = false
 
 
 func _on_end_of_lines_check_toggled(button_pressed):
