@@ -14,7 +14,9 @@ var source_lines: PackedStringArray
 @onready var endOfScriptCheck = %EndOfScriptCheck
 @onready var endOfLinesCheck = %EndOfLinesCheck
 @onready var spacesOperatorsCheck = %SpacesOperatorsCheck
-@onready var linesBeforeFuncCheck = %LinesBeforeFuncCheck
+@onready var oneLinesBeforeFuncCheck = %OneLinesBeforeFuncCheck
+@onready var twoLinesBeforeFuncCheck = %TwoLinesBeforeFuncCheck
+@onready var expandNodes = %ExpandNodes
 
 ## Array of regular expresessions used to beautify
 @onready var cleaners: Array[Cleaner] = [
@@ -64,8 +66,8 @@ func _ready():
 	endOfLinesCheck.tooltip_text = endOfLinesCheck.text
 	endOfScriptCheck.tooltip_text = endOfScriptCheck.text
 	spacesOperatorsCheck.tooltip_text = spacesOperatorsCheck.text
-	linesBeforeFuncCheck.tooltip_text = linesBeforeFuncCheck.text
-
+	oneLinesBeforeFuncCheck.tooltip_text = oneLinesBeforeFuncCheck.text
+	twoLinesBeforeFuncCheck.tooltip_text = twoLinesBeforeFuncCheck.text
 
 ## Sets the current script editor.
 ## Connects signals to detect change of script and update the current script.
@@ -87,8 +89,10 @@ func _on_beautify_pressed():
 	source_lines = current_script.source_code.split("\n")
 	if spacesOperatorsCheck.button_pressed:
 		_apply_cleaners()
-	if linesBeforeFuncCheck.button_pressed:
-		_clean_func()
+	if oneLinesBeforeFuncCheck.button_pressed:
+		_clean_func(1)
+	if twoLinesBeforeFuncCheck.button_pressed:
+		_clean_func(2)
 	if cleanEmptyLinesCheck.button_pressed:
 		_clean_empty_lines()
 	if endOfScriptCheck.button_pressed:
@@ -107,6 +111,16 @@ func _on_clean_empty_lines_check_toggled(button_pressed):
 		endOfLinesCheck.button_pressed = false
 
 
+func _on_one_lines_before_func_check_toggled(button_pressed):
+	if button_pressed:
+		twoLinesBeforeFuncCheck.button_pressed = false
+
+
+func _on_two_lines_before_func_check_toggled(button_pressed):
+	if button_pressed:
+		oneLinesBeforeFuncCheck.button_pressed = false
+
+
 func _on_toggle(button_pressed):
 	_save_preferences()
 
@@ -115,7 +129,8 @@ func _on_toggle(button_pressed):
 func _save_preferences():
 	var config_file = ConfigFile.new()
 	config_file.set_value("prefs", "spacesOperatorsCheck", spacesOperatorsCheck.button_pressed)
-	config_file.set_value("prefs", "linesBeforeFuncCheck", linesBeforeFuncCheck.button_pressed)
+	config_file.set_value("prefs", "oneLinesBeforeFuncCheck", oneLinesBeforeFuncCheck.button_pressed)
+	config_file.set_value("prefs", "twoLinesBeforeFuncCheck", twoLinesBeforeFuncCheck.button_pressed)
 	config_file.set_value("prefs", "cleanEmptyLinesCheck", cleanEmptyLinesCheck.button_pressed)
 	config_file.set_value("prefs", "endOfScriptCheck", endOfScriptCheck.button_pressed)
 	config_file.set_value("prefs", "endOfLinesCheck", endOfLinesCheck.button_pressed)
@@ -129,7 +144,8 @@ func _load_preferences():
 	if err != OK:
 		return
 	spacesOperatorsCheck.button_pressed = config_file.get_value("prefs", "spacesOperatorsCheck", true)
-	linesBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "linesBeforeFuncCheck", true)
+	oneLinesBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "oneLinesBeforeFuncCheck", true)
+	twoLinesBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "twoLinesBeforeFuncCheck", true)
 	cleanEmptyLinesCheck.button_pressed = config_file.get_value("prefs", "cleanEmptyLinesCheck", true)
 	endOfScriptCheck.button_pressed = config_file.get_value("prefs", "endOfScriptCheck", true)
 	endOfLinesCheck.button_pressed = config_file.get_value("prefs", "endOfLinesCheck", true)
@@ -162,8 +178,8 @@ func _clean_end_of_script():
 	_update_code()
 
 
-## Checks that there are exactly two empty lines above functions (and above function comments).
-func _clean_func():
+## Checks that there are exactly num_lines empty lines above functions (and above function comments).
+func _clean_func(num_lines):
 	#A any line
 	#F func
 	#C comment
@@ -181,14 +197,14 @@ func _clean_func():
 			if line.begins_with("#"):
 				func_index = i
 			elif not line.is_empty():
-				source_lines.insert(i + 1, "")
-				source_lines.insert(i + 1, "")
-				func_index += 2
-		elif i == func_index - 2:
+				for x in num_lines:
+					source_lines.insert(i + 1, "")
+				func_index += num_lines
+		elif i == func_index - num_lines:
 			if not line.is_empty():
 				source_lines.insert(i + 1, "")
 				func_index += 1
-		elif i == func_index - 3:
+		elif i == func_index - (num_lines + 1):
 			if line.is_empty():
 				source_lines.remove_at(i)
 				func_index -= 1
@@ -232,6 +248,12 @@ func _get_quote_ranges(line: String) -> Array:
 	var in_string = false
 	var start_pos = -1
 	var end_pos = -1
+
+	#added code to treat node references as quotes (ie $node/node)
+	var in_node = false
+	var node_start_pos = -1
+	var node_end_pos = -1
+
 	var i = 0
 	while i < line.length():
 		var char = line[i]
@@ -245,7 +267,34 @@ func _get_quote_ranges(line: String) -> Array:
 				in_string = false
 		elif in_string and char == "\\":
 			i += 1
+
+		#added code to treat node references as quotes
+		if not expandNodes.button_pressed:
+			if not in_string:
+				if char == '$':
+					in_node = true
+					node_start_pos = i
+				if in_node:
+					#node reference can end with any of .=:\t or space
+					if char == '.' \
+					or char == '=' \
+					or char == ':' \
+					or char == '\t' \
+					or char == ' ':
+						node_end_pos = i
+						quote_ranges.append({"start": node_start_pos, "end": node_end_pos})
+						in_node = false
+
 		i += 1
+
+	#added code to treat node references as quotes
+	if not expandNodes.button_pressed:
+		#if node reference is at EOL
+		if in_node:
+			node_end_pos = i-1
+			quote_ranges.append({"start": node_start_pos, "end": node_end_pos})
+			in_node = false
+
 	return quote_ranges
 
 
