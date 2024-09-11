@@ -77,18 +77,20 @@ func test(a:int, b    :   int, c, d, e, f, g) -> z :
 	a = a*b
 	a=a* b *c *  d
 
+
 if $node/test:
 	var node_test = $node/test
-	var node_test = $node/test.text
-	$node/test.text="test"
-	$node/test = space/time
-	$node/test	=	tab/time
+	var node_text = $node/test.text
+	$node/test.text="node/test"
+	$node/test = "spaces"
+	$node/test	=	"tabs"
+
 
 	""".split("\n")
 
 
 	$Beauty._apply_cleaners()
-	$Beauty._clean_func(1)
+	$Beauty._clean_func1()
 	$Beauty._clean_empty_lines()
 	$Beauty._clean_end_of_script()
 	$Beauty._clean_end_of_lines()

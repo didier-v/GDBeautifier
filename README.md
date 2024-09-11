@@ -23,8 +23,8 @@ The addon ignores anything inside strings and comments.
 Add the addons folder to your project, and enable it in the plugins panel of the project settings.
 
 ## Usage
-The beautifier panel is in the top left dock. It appears when the script editor is visible and a script is selected.  
-Select the desired options and click on beautify. The current script will be beautified.  
+The beautifier panel is in the top left dock. It appears when the script editor is visible and a script is selected.
+Select the desired options and click on beautify. The current script will be beautified.
 You can undo if you change your mind.
 
 ## Licence

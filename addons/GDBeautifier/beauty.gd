@@ -14,9 +14,9 @@ var source_lines: PackedStringArray
 @onready var endOfScriptCheck = %EndOfScriptCheck
 @onready var endOfLinesCheck = %EndOfLinesCheck
 @onready var spacesOperatorsCheck = %SpacesOperatorsCheck
-@onready var ignoreNodes = %IgnoreNodes
 @onready var oneLineBeforeFuncCheck = %OneLineBeforeFuncCheck
 @onready var twoLinesBeforeFuncCheck = %TwoLinesBeforeFuncCheck
+@onready var ignoreNodes = %IgnoreNodes
 
 ## Array of regular expresessions used to beautify
 @onready var cleaners: Array[Cleaner] = [
@@ -66,9 +66,9 @@ func _ready():
 	endOfLinesCheck.tooltip_text = endOfLinesCheck.text
 	endOfScriptCheck.tooltip_text = endOfScriptCheck.text
 	spacesOperatorsCheck.tooltip_text = spacesOperatorsCheck.text
-	ignoreNodes.tooltip_text = ignoreNodes.text
 	oneLineBeforeFuncCheck.tooltip_text = oneLineBeforeFuncCheck.text
 	twoLinesBeforeFuncCheck.tooltip_text = twoLinesBeforeFuncCheck.text
+	ignoreNodes.tooltip_text = ignoreNodes.text
 
 ## Sets the current script editor.
 ## Connects signals to detect change of script and update the current script.
@@ -140,9 +140,9 @@ func _on_toggle(button_pressed):
 func _save_preferences():
 	var config_file = ConfigFile.new()
 	config_file.set_value("prefs", "spacesOperatorsCheck", spacesOperatorsCheck.button_pressed)
-	config_file.set_value("prefs", "ignoreNodes", ignoreNodes.button_pressed)
 	config_file.set_value("prefs", "oneLineBeforeFuncCheck", oneLineBeforeFuncCheck.button_pressed)
 	config_file.set_value("prefs", "twoLinesBeforeFuncCheck", twoLinesBeforeFuncCheck.button_pressed)
+	config_file.set_value("prefs", "ignoreNodes", ignoreNodes.button_pressed)
 	config_file.set_value("prefs", "cleanEmptyLinesCheck", cleanEmptyLinesCheck.button_pressed)
 	config_file.set_value("prefs", "endOfScriptCheck", endOfScriptCheck.button_pressed)
 	config_file.set_value("prefs", "endOfLinesCheck", endOfLinesCheck.button_pressed)
@@ -156,9 +156,9 @@ func _load_preferences():
 	if err != OK:
 		return
 	spacesOperatorsCheck.button_pressed = config_file.get_value("prefs", "spacesOperatorsCheck", true)
-	ignoreNodes.button_pressed = config_file.get_value("prefs", "ignoreNodes", true)
 	oneLineBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "oneLineBeforeFuncCheck", true)
 	twoLinesBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "twoLinesBeforeFuncCheck", true)
+	ignoreNodes.button_pressed = config_file.get_value("prefs", "ignoreNodes", true)
 	cleanEmptyLinesCheck.button_pressed = config_file.get_value("prefs", "cleanEmptyLinesCheck", true)
 	endOfScriptCheck.button_pressed = config_file.get_value("prefs", "endOfScriptCheck", true)
 	endOfLinesCheck.button_pressed = config_file.get_value("prefs", "endOfLinesCheck", true)
