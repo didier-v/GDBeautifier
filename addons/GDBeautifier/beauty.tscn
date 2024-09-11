@@ -69,8 +69,8 @@ layout_mode = 2
 [node name="IgnoreNodes" type="CheckBox" parent="ScrollContainer/VBoxContainer/HBoxSpaces"]
 unique_name_in_owner = true
 layout_mode = 2
-tooltip_text = "Add spaces around / symbols inside $ node references"
-text = "Ignore '/' symbols inside $ node references (experimental)"
+tooltip_text = "Ignore '/' symbols inside $ node references (experimental)"
+text = "Ignore '/' symbols inside $node references (experimental)"
 
 [node name="OneLineBeforeFuncCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer"]
 unique_name_in_owner = true
