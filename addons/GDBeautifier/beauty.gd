@@ -70,6 +70,7 @@ func _ready():
 	twoLinesBeforeFuncCheck.tooltip_text = twoLinesBeforeFuncCheck.text
 	ignoreNodes.tooltip_text = ignoreNodes.text
 
+
 ## Sets the current script editor.
 ## Connects signals to detect change of script and update the current script.
 func _set_script_editor(val: ScriptEditor):
@@ -156,9 +157,9 @@ func _load_preferences():
 	if err != OK:
 		return
 	spacesOperatorsCheck.button_pressed = config_file.get_value("prefs", "spacesOperatorsCheck", true)
-	oneLineBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "oneLineBeforeFuncCheck", true)
+	oneLineBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "oneLineBeforeFuncCheck", false)
 	twoLinesBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "twoLinesBeforeFuncCheck", true)
-	ignoreNodes.button_pressed = config_file.get_value("prefs", "ignoreNodes", true)
+	ignoreNodes.button_pressed = config_file.get_value("prefs", "ignoreNodes", false)
 	cleanEmptyLinesCheck.button_pressed = config_file.get_value("prefs", "cleanEmptyLinesCheck", true)
 	endOfScriptCheck.button_pressed = config_file.get_value("prefs", "endOfScriptCheck", true)
 	endOfLinesCheck.button_pressed = config_file.get_value("prefs", "endOfLinesCheck", true)
@@ -303,7 +304,7 @@ func _get_quote_ranges(line: String) -> Array:
 	if ignoreNodes.button_pressed:
 		#if node reference is at EOL
 		if in_node:
-			node_end_pos = i-1
+			node_end_pos = i - 1
 			quote_ranges.append({"start": node_start_pos, "end": node_end_pos})
 			in_node = false
 
