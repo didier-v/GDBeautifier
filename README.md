@@ -11,9 +11,9 @@ GDBeautifier performs several cleaning tasks.
  * Removes spaces and tabs in empty lines
  * Removes spaces at the end of lines
  * Removes empty lines at the end of a script
- * Adds spaces around operators
+ * Adds spaces around operators (with the option of not replacing / within $node references)
  * Adds a space after commas and colons
- * Adds 2 empty lines before any function
+ * Adds 1 or 2 empty lines before any function
 
 The addon ignores anything inside strings and comments.
 
