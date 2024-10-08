@@ -57,6 +57,15 @@ var source_lines: PackedStringArray
 	Cleaner.new("\\S\\s*>>=\\s*", " >>= ", true), # clean >>=
 ]
 
+## The multiline state of a line
+enum Multiline {
+	## not in a multiline string
+	NONE,
+	## the whole line is in a multiline string
+	FULL,
+	## the end line is in a multiline string
+	END,
+}
 
 func _ready():
 	_load_preferences()
@@ -199,21 +208,34 @@ func _clean_func():
 ## Cleans the source code by applying each defined cleaner on each line.
 func _apply_cleaners():
 	var regex = RegEx.new()
+	var is_current_line_in_string := false # true when current line is in multiline string
+	var is_next_line_in_string := false # true when next line starts in multiline string
+	var quote_type_start: String # quote type of the multiline at the start of the current line, if any
+	var quote_type_end: String # quote type of the multiline at the end of the current line, if any
 	for i in range(source_lines.size()):
+		# get the previous multiline state
+		is_current_line_in_string = is_next_line_in_string
+		quote_type_start = quote_type_end
+
 		var line = source_lines[i]
-		var comment_pos = source_lines[i].find("#")
-		var quote_ranges = _get_quote_ranges(source_lines[i])
+		var quote_ranges_result = _get_quote_ranges(line, is_current_line_in_string, quote_type_start)
+		var quote_ranges = quote_ranges_result[0]
+		quote_type_end = quote_ranges_result[2]
+		is_next_line_in_string = quote_ranges_result[1] == Multiline.END
+		var comment_pos = _find_comment_position(source_lines[i], quote_ranges)
 		for cleaner in cleaners:
 			regex.compile(cleaner.regex)
-			var result = regex.search(source_lines[i], 0, comment_pos)
+			var result = regex.search(source_lines[i], 0, comment_pos) # Search in the line, ignore comments
 			while result != null:
-				if not _is_in_ranges(result.get_start(), quote_ranges):
+				var result_start = result.get_start()
+				if not _is_in_ranges(result_start, quote_ranges):
 					var str = result.get_string()
 					var new_str = (str[0] if cleaner.add_first_char else "") + cleaner.replacement
 					var offset = 1 if cleaner.add_first_char else 0
 					source_lines[i] = source_lines[i].substr(0, result.get_start() + offset) + cleaner.replacement + source_lines[i].substr(result.get_end())
-					comment_pos = source_lines[i].find("#")
-					quote_ranges = _get_quote_ranges(source_lines[i])
+					quote_ranges_result = _get_quote_ranges(source_lines[i],is_current_line_in_string, quote_type_start)
+					quote_ranges = quote_ranges_result[0]
+					comment_pos = _find_comment_position(source_lines[i], quote_ranges)
 				result = regex.search(source_lines[i], result.get_end() - 1, comment_pos)
 	_update_code()
 
@@ -224,29 +246,64 @@ func _is_comment(line: String) -> bool:
 	regex.compile("^[ \t]*#")
 	return regex.search(line) != null
 
+## Finds the comment starting position in a line, ignoring dashes that are in strings
+func _find_comment_position(line: String, string_ranges:Array) -> int:
+	var found := false
+	var position := -1
+	while position < line.length():
+		position = line.find("#", position + 1)
+		if position == -1:
+			return -1
+		elif not _is_in_ranges(position,string_ranges):
+			return position
+	return -1
 
-## Returns an array of start and end positions of each string in a line.
-## Works with single quote and double quote strings.
-func _get_quote_ranges(line: String) -> Array:
+## Returns an array of start and end positions of each string in a line.[br]
+## Works with single quote and double quote strings.[br]
+## Returns a tuple [Array of string ranges, in_multiline boolean, quote_type string]
+func _get_quote_ranges(line: String, in_multiline: bool = false, quote_type: String = "") -> Array:
 	var quote_ranges = []
 	var in_string = false
+	var escape_next = false
 	var start_pos = -1
 	var end_pos = -1
 	var i = 0
+
+	if in_multiline and quote_type != "":
+		var regex = RegEx.new()
+		regex.compile(r"(?<!\\)"+quote_type)
+		var result = regex.search(line)
+		if result == null:
+			quote_ranges.append({"start": 0, "end": line.length()})
+			return [quote_ranges,Multiline.FULL,quote_type] # for lines in strings the range is the whole line
+		else:
+			in_multiline = false # end of the multiline
+			quote_type = "" # clear quote type
+			quote_ranges.append({"start": 0, "end": result.get_end()-1}) # last part of the multiline
+			i = result.get_end()
+
 	while i < line.length():
 		var char = line[i]
-		if char == "'" or char == '"':
+		if escape_next: # if true, ignore next character
+			escape_next = false
+		elif in_string and char == "\\": # backslash means ignore next character
+			escape_next = true
+		elif (quote_type == "" and (char == "'" or char == '"')) or quote_type == char: # a quote has been found
 			if not in_string:
+				quote_type = char # starting a string with this type of quote
 				in_string = true
 				start_pos = i
 			else:
-				end_pos = i
+				end_pos = i # ending a string
+				quote_type = "" # clear quote type
 				quote_ranges.append({"start": start_pos, "end": end_pos})
 				in_string = false
-		elif in_string and char == "\\":
-			i += 1
 		i += 1
-	return quote_ranges
+	if in_string:
+		# string not terminated at the end of line, starting a multiline
+		in_multiline = true
+		quote_ranges.append({"start": start_pos, "end": line.length()})
+	return [quote_ranges, Multiline.END if in_multiline else Multiline.NONE, quote_type]
 
 
 ## Returns true if pos is in one of the ranges.

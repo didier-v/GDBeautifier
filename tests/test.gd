@@ -8,7 +8,7 @@ func foo():
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	
+
 	$Beauty.source_lines = """
 	var x=0
 	var y:="foo"
@@ -76,15 +76,28 @@ func test(a:int, b    :   int, c, d, e, f, g) -> z :
 	a = a  + b  + c  + d  + e
 	a = a*b
 	a=a* b *c *  d
-	
-	
-	
-	""".split("\n")
 
+
+# strings tests
+a+b # +a+b
+"a+b # "+a+b
+"a+b # "+a+b #b+c
+"solo'quote_a+b"
+# multilines
+"a+b
+b+c+d+'x'+e
+   do  not  remove   +   spaces !
+"
+r"a+b+\\\"+c
++d+e"+a+b+'x+y
++z'+a+
+"a+'a+b'+b"+'a+b'+c+d
+
+
+	""".split("\n")
 
 	$Beauty._apply_cleaners()
 	$Beauty._clean_func()
 	$Beauty._clean_empty_lines()
 	$Beauty._clean_end_of_script()
 	$Beauty._clean_end_of_lines()
-
