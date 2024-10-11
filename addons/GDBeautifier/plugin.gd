@@ -2,13 +2,13 @@
 extends EditorPlugin
 
 var command_id: int = -1
-var beauty = preload("res://addons/GDBeautifier/beauty.tscn")
+var gd_beautifier = preload("res://addons/GDBeautifier/gd_beautifier.tscn")
 var is_in_dock: bool = false
 var beauty_dock
 
 
 func _enter_tree():
-	beauty_dock = beauty.instantiate()
+	beauty_dock = gd_beautifier.instantiate()
 	connect("main_screen_changed", on_main_screen_changed)
 	beauty_dock.script_editor = get_editor_interface().get_script_editor()
 	if get_editor_interface().get_script_editor().visible:

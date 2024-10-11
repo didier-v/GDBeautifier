@@ -1,0 +1,76 @@
+[gd_scene load_steps=2 format=3 uid="uid://cms8wqnf0f5e0"]
+
+[ext_resource type="Script" path="res://addons/GDBeautifier/gd_beautifier.gd" id="1_em804"]
+
+[node name="GDBeautifier" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_em804")
+
+[node name="Beautify" type="Button" parent="."]
+layout_mode = 2
+text = "Beautify"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CleanEmptyLinesCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+tooltip_text = "Remove spaces/tabs in empty lines"
+button_pressed = true
+text = "Remove spaces/tabs in empty lines"
+
+[node name="HBoxEndOfLines" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Space" type="Control" parent="ScrollContainer/VBoxContainer/HBoxEndOfLines"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="EndOfLinesCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer/HBoxEndOfLines"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Remove spaces at the end of lines"
+button_pressed = true
+text = "Remove spaces at the end of lines"
+
+[node name="EndOfScriptCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Remove empty lines at the end of the script"
+button_pressed = true
+text = "Remove empty lines at the end of the script"
+
+[node name="SpacesOperatorsCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Add spaces around operators, after commas and colons"
+button_pressed = true
+text = "Add spaces around operators, after commas and colons"
+
+[node name="LinesBeforeFuncCheck" type="CheckBox" parent="ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Set 2 empty lines before functions"
+button_pressed = true
+text = "Set 2 empty lines before functions"
+
+[connection signal="pressed" from="Beautify" to="." method="_on_beautify_pressed"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/CleanEmptyLinesCheck" to="." method="_on_clean_empty_lines_check_toggled"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/CleanEmptyLinesCheck" to="." method="_on_toggle"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/HBoxEndOfLines/EndOfLinesCheck" to="." method="_on_end_of_lines_check_toggled"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/HBoxEndOfLines/EndOfLinesCheck" to="." method="_on_toggle"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/EndOfScriptCheck" to="." method="_on_toggle"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/SpacesOperatorsCheck" to="." method="_on_toggle"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/LinesBeforeFuncCheck" to="." method="_on_toggle"]
