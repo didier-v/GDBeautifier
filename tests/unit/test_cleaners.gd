@@ -192,6 +192,9 @@ r"a+b+\\\"+c
 +d+e"+a+b+'x+y
 +z'+a+
 "a+'a+b'+b"+'a+b'+c+d
+\"\"\"
+	a+b"a+b
+\"\"\"
 	""".split("\n")
 
 	var expected_lines = """
@@ -206,6 +209,9 @@ r"a+b+\\\"+c
 +d+e" + a + b + 'x+y
 +z' + a + 
 "a+'a+b'+b" + 'a+b' + c + d
+\"\"\"
+	a+b"a+b
+\"\"\"
 	""".split("\n")
 	_process_tests(source_lines, expected_lines)
 
@@ -213,4 +219,4 @@ r"a+b+\\\"+c
 func _process_tests(source_lines, expected_lines):
 	source_lines = beauty.apply_cleaners(source_lines)
 	for i in range(source_lines.size()):
-		assert_eq(source_lines[i], expected_lines[i], "%i: %s failed"%[i,expected_lines[i]])
+		assert_eq(source_lines[i], expected_lines[i], "%d: %s failed"%[i, expected_lines[i]])
