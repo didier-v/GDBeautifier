@@ -12,6 +12,7 @@ script = ExtResource("1_em804")
 
 [node name="Beautify" type="Button" parent="."]
 layout_mode = 2
+tooltip_text = "Beautify the current script. (Ctrl+Alt+B)"
 text = "Beautify"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
@@ -67,10 +68,10 @@ button_pressed = true
 text = "Set 2 empty lines before functions"
 
 [connection signal="pressed" from="Beautify" to="." method="_on_beautify_pressed"]
-[connection signal="toggled" from="ScrollContainer/VBoxContainer/CleanEmptyLinesCheck" to="." method="_on_toggle"]
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/CleanEmptyLinesCheck" to="." method="_on_clean_empty_lines_check_toggled"]
-[connection signal="toggled" from="ScrollContainer/VBoxContainer/HBoxEndOfLines/EndOfLinesCheck" to="." method="_on_toggle"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/CleanEmptyLinesCheck" to="." method="_on_toggle"]
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/HBoxEndOfLines/EndOfLinesCheck" to="." method="_on_end_of_lines_check_toggled"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/HBoxEndOfLines/EndOfLinesCheck" to="." method="_on_toggle"]
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/EndOfScriptCheck" to="." method="_on_toggle"]
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/SpacesOperatorsCheck" to="." method="_on_toggle"]
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/LinesBeforeFuncCheck" to="." method="_on_toggle"]
