@@ -204,9 +204,9 @@ func _get_quote_ranges(line: String, in_multiline: bool = false, quote_type: Str
 			escape_next = false
 		elif in_string and char == "\\": # backslash means ignore next character
 			escape_next = true
-		elif (
+		elif (  #  a quote has been found
 				(quote_type == "" and (char == "'" or char == '"')) 
-				or quote_type == char # a quote has been found
+				or (quote_type != "" and quote_type == line.substr(i,quote_type.length()))
 			):
 			if not in_string:
 				# starting a string with the detected quote type
@@ -218,7 +218,8 @@ func _get_quote_ranges(line: String, in_multiline: bool = false, quote_type: Str
 				in_string = true
 				start_pos = i
 			else:
-				end_pos = i # ending a string
+				end_pos = i+quote_type.length() # ending a string
+				i += quote_type.length() - 1
 				quote_type = "" # clear quote type
 				quote_ranges.append({"start": start_pos, "end": end_pos})
 				in_string = false

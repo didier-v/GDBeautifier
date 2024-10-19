@@ -195,7 +195,10 @@ r"a+b+\\\"+c
 \"\"\"
 	a+b"a+b
 \"\"\"
-	""".split("\n")
+print(\"\"\"
+a+b\"a+b
+\"\"\" + \"\"\" (())\"\"\")
+a+b""".split("\n")
 
 	var expected_lines = """
 string = &"string"
@@ -212,7 +215,10 @@ r"a+b+\\\"+c
 \"\"\"
 	a+b"a+b
 \"\"\"
-	""".split("\n")
+print(\"\"\"
+a+b\"a+b
+\"\"\" + \"\"\" (())\"\"\")
+a + b""".split("\n")
 	_process_tests(source_lines, expected_lines)
 
 
