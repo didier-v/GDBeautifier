@@ -91,8 +91,10 @@ func test_operators_cleaners():
 		'a<<b',
 		'a>>b',
 		'a = (-b-1)',
+		'a = ( - b-1)',
 		'return -  1 + a # comment',
 		'[-1,1]',
+		'[ - 1,1]',
 	]
 	var expected_lines: Array[String] = [
 		'a = a + b',
@@ -119,7 +121,9 @@ func test_operators_cleaners():
 		'a << b',
 		'a >> b',
 		'a = (-b - 1)',
+		'a = (-b - 1)',
 		'return -1 + a # comment',
+		'[-1, 1]',
 		'[-1, 1]',
 	]
 	_process_tests(source_lines, expected_lines)

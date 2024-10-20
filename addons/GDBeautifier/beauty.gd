@@ -15,8 +15,9 @@ var cleaners: Array[Cleaner] = [
 	Cleaner.new("[^\\s&]\\s*&\\s*(?!=|\\\"|&)\\s*", " & ", true), # clean &
 	Cleaner.new(r"[^\s|]\s*\|\s*(?!=|\s|\|)\s*", " | ", true), # clean |
 	Cleaner.new(r"\S\s*\^\s*(?!=|\s)\s*", " ^ ", true), # clean ^
-	Cleaner.new(r"(=|!|>|<) -\s", " -", true), # clean - (unary)
-	Cleaner.new(r"((?:if|elif|return|while)\s+-)\s*", "$1", false), # clean - (unary)
+	Cleaner.new(r"(=|!|>|<) -\s", " -", true), # clean - (unary) after = ! < >
+	Cleaner.new(r"(\(|\[) -\s", "-", true), # clean - (unary) after ( [
+	Cleaner.new(r"((?:if|elif|return|while)\s+-)\s*", "$1", false), # clean - (unary) after keyword
 	Cleaner.new(r" !\s", "!", true), # clean ! (unary)
 	Cleaner.new(r"\S\s*&&\s*", " && ", true), # clean &&
 	Cleaner.new(r"\S\s*\|\|\s*", " || ", true), # clean &&
