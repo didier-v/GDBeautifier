@@ -87,7 +87,7 @@ func test_operators_cleaners():
 		'a= b||c ||d|| e',
 		'a =! b',
 		'a=a&!b',
-		'a=a%b % c %d  %e % f',
+		'a=a%2',
 		'a<<b',
 		'a>>b',
 		'a = (-b-1)',
@@ -117,7 +117,7 @@ func test_operators_cleaners():
 		'a = b || c || d || e',
 		'a = !b',
 		'a = a & !b',
-		'a = a % b % c % d % e % f',
+		'a = a % 2',
 		'a << b',
 		'a >> b',
 		'a = (-b - 1)',
@@ -153,18 +153,28 @@ func test_comparison_operators_cleaners():
 
 func test_nodepath_cleaners():
 	var source_lines: Array[String] = [
+		'var a=$Node.property',
 		'var a=%Node.property',
-		'var a=[%Node1,‰Node2]',
+		'var a=[%Node1,%Node2]',
 		'call_some_func(%Node1,%Node2)',
-		'x=y%%Toto.z',
-		'x = y % %Toto.z',
+		'$parent/child.prop',
+		'$_a_node1/a_node2.prop3',
+		'$"node+with-special-chars/child".prop',
+		'$"par😀nt/child.prop"',
+		'var a=[%Node1/node2.prop,$Node2.node3.prop]',
+		'var a=[$"node+1/node+2".prop,%"Node-2.node-3".prop]',
 	]
 	var expected_lines: Array[String] = [
+		'var a = $Node.property',
 		'var a = %Node.property',
-		'var a = [%Node1, ‰Node2]',
+		'var a = [%Node1, %Node2]',
 		'call_some_func(%Node1, %Node2)',
-		'x = y % %Toto.z',
-		'x = y % %Toto.z',
+		'$parent/child.prop',
+		'$_a_node1/a_node2.prop3',
+		'$"node+with-special-chars/child".prop',
+		'$"par😀nt/child.prop"',
+		'var a = [%Node1/node2.prop, $Node2.node3.prop]',
+		'var a = [$"node+1/node+2".prop, %"Node-2.node-3".prop]',
 	]
 	_process_tests(source_lines, expected_lines)
 

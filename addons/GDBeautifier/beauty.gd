@@ -128,19 +128,20 @@ func apply_cleaners(source_lines: Array[String]) -> Array[String]:
 		# get the previous multiline state
 		is_current_line_in_string = is_next_line_in_string
 		quote_type_start = quote_type_end
-
 		var line = source_lines[i]
 		var quote_ranges_result = _get_quote_ranges(line, is_current_line_in_string, quote_type_start)
 		var quote_ranges = quote_ranges_result[0]
+		var node_ranges = _get_node_ranges(line)
 		quote_type_end = quote_ranges_result[2]
 		is_next_line_in_string = quote_ranges_result[1] != Multiline.NONE
 		var comment_pos = _find_comment_position(source_lines[i], quote_ranges)
+
 		for cleaner in cleaners:
 			regex.compile(cleaner.regex)
 			var result = regex.search(line, 0, comment_pos) # Search in the line, ignore comments
 			while result != null:
 				var result_start = result.get_start()
-				if not _is_in_ranges(result_start, quote_ranges):
+				if not (_is_in_ranges(result_start, quote_ranges) or _is_in_ranges(result_start, node_ranges)):
 					var str = result.get_string()
 					if cleaner.add_first_char:
 						var offset = 1
@@ -205,13 +206,13 @@ func _get_quote_ranges(line: String, in_multiline: bool = false, quote_type: Str
 			escape_next = false
 		elif in_string and char == "\\": # backslash means ignore next character
 			escape_next = true
-		elif (  #  a quote has been found
-				(quote_type == "" and (char == "'" or char == '"')) 
-				or (quote_type != "" and quote_type == line.substr(i,quote_type.length()))
+		elif ( # a quote has been found
+				(quote_type == "" and (char == "'" or char == '"'))
+				or (quote_type != "" and quote_type == line.substr(i, quote_type.length()))
 			):
 			if not in_string:
 				# starting a string with the detected quote type
-				var quote_expr = line.substr(i,3) # check if triple-quote type
+				var quote_expr = line.substr(i, 3) # check if triple-quote type
 				if quote_expr == '"""' || quote_expr == "'''":
 					quote_type = quote_expr
 				else:
@@ -219,7 +220,7 @@ func _get_quote_ranges(line: String, in_multiline: bool = false, quote_type: Str
 				in_string = true
 				start_pos = i
 			else:
-				end_pos = i+quote_type.length() # ending a string
+				end_pos = i + quote_type.length() # ending a string
 				i += quote_type.length() - 1
 				quote_type = "" # clear quote type
 				quote_ranges.append({"start": start_pos, "end": end_pos})
@@ -230,6 +231,21 @@ func _get_quote_ranges(line: String, in_multiline: bool = false, quote_type: Str
 		in_multiline = true
 		quote_ranges.append({"start": start_pos, "end": line.length()})
 	return [quote_ranges, Multiline.END if in_multiline else Multiline.NONE, quote_type]
+
+
+## Returns an array of start and end positions of each node path in a line.[br]
+## the following characters are not allowed in nodes . : @ / " %
+## Returns an array of ranges
+func _get_node_ranges(line: String) -> Array:
+	var regex = RegEx.new()
+	# This regex detects node paths starting with $ or %.
+	# If an node name contains characters outside of alphanumeric+underscore, or starts with a numeric,
+	# it must be inside quotes, so node paths in quotes are detected too.
+	regex.compile(r'[\$%](?:[a-zA-Z_][a-zA-Z_\d/]*)|("[^"]+)"')
+	var results = []
+	for result in regex.search_all(line):
+		results.append({"start":result.get_start(), "end":result.get_end()})
+	return results
 
 
 ## Returns true if pos is in one of the ranges.
