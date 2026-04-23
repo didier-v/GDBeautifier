@@ -119,7 +119,6 @@ func clean_func(source_lines: Array[String]) -> Array[String]:
 
 ## Cleans the source code by applying each defined cleaner on each line.
 func apply_cleaners(source_lines: Array[String]) -> Array[String]:
-	var regex = RegEx.new()
 	var is_current_line_in_string := false # true when current line is in multiline string
 	var is_next_line_in_string := false # true when next line starts in multiline string
 	var quote_type_start: String # quote type of the multiline at the start of the current line, if any
@@ -137,8 +136,7 @@ func apply_cleaners(source_lines: Array[String]) -> Array[String]:
 		var comment_pos = _find_comment_position(source_lines[i], quote_ranges)
 
 		for cleaner in cleaners:
-			regex.compile(cleaner.regex)
-			var result = regex.search(line, 0, comment_pos) # Search in the line, ignore comments
+			var result = cleaner.regex.search(line, 0, comment_pos) # Search in the line, ignore comments
 			while result != null:
 				var result_start = result.get_start()
 				if not (_is_in_ranges(result_start, quote_ranges) or _is_in_ranges(result_start, node_ranges)):
@@ -147,11 +145,11 @@ func apply_cleaners(source_lines: Array[String]) -> Array[String]:
 						var offset = 1
 						line = line.substr(0, result.get_start() + offset) + cleaner.replacement + line.substr(result.get_end())
 					else: # replace
-						line = regex.sub(line, cleaner.replacement)
+						line = cleaner.regex.sub(line, cleaner.replacement)
 					quote_ranges_result = _get_quote_ranges(line, is_current_line_in_string, quote_type_start)
 					quote_ranges = quote_ranges_result[0]
 					comment_pos = _find_comment_position(line, quote_ranges)
-				result = regex.search(line, result.get_end() - 1, comment_pos)
+				result = cleaner.regex.search(line, result.get_end() - 1, comment_pos)
 		source_lines[i] = line
 	return source_lines
 
