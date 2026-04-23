@@ -42,7 +42,16 @@ func _on_script_changed(script: Script):
 
 ## Beautifies the current script.
 func _on_beautify_pressed():
-	var source_lines = current_script.source_code.split("\n")
+	var source_lines: Array[String]
+	
+	if Engine.is_editor_hint():
+		# Get unsaved code from the editor widget
+		var code_edit = script_editor.get_current_editor().get_base_editor()
+		source_lines = Array(Array(code_edit.text.split("\n")), TYPE_STRING, "", null)
+	else:
+		# Fallback for non-editor context (tests)
+		source_lines = Array(Array(current_script.source_code.split("\n")), TYPE_STRING, "", null)
+
 	if spacesOperatorsCheck.button_pressed:
 		source_lines = beauty.apply_cleaners(source_lines)
 	if linesBeforeFuncCheck.button_pressed:
