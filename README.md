@@ -4,7 +4,8 @@ A GDScript beautifier for [Godot Engine](https://github.com/godotengine/godot)
 ![image](assets/gd_beautifier_panel.png)
 
 ## Requirements
-This addon is compatible with Godot 4.
+This addon is compatible with Godot 4.6.
+
 
 ## Features
 GDBeautifier performs several cleaning tasks.
