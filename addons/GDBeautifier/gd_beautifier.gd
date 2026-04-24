@@ -10,20 +10,22 @@ var current_script: Script
 ## The beautifier
 var beauty: Beauty
 
-@onready var cleanEmptyLinesCheck = %CleanEmptyLinesCheck
-@onready var endOfScriptCheck = %EndOfScriptCheck
-@onready var endOfLinesCheck = %EndOfLinesCheck
-@onready var spacesOperatorsCheck = %SpacesOperatorsCheck
-@onready var linesBeforeFuncCheck = %LinesBeforeFuncCheck
+@onready var clean_empty_lines_check: CheckBox = %CleanEmptyLinesCheck
+@onready var end_of_script_check: CheckBox = %EndOfScriptCheck
+@onready var end_of_lines_check: CheckBox = %EndOfLinesCheck
+@onready var spaces_operators_check: CheckBox = %SpacesOperatorsCheck
+@onready var lines_before_func_check: CheckBox = %LinesBeforeFuncCheck
+@onready var lines_before_func_count: SpinBox = %linesBeforeFuncCount
+
+var lines_before_func: int = 2
 
 
 func _ready():
 	_load_preferences()
-	cleanEmptyLinesCheck.tooltip_text = cleanEmptyLinesCheck.text
-	endOfLinesCheck.tooltip_text = endOfLinesCheck.text
-	endOfScriptCheck.tooltip_text = endOfScriptCheck.text
-	spacesOperatorsCheck.tooltip_text = spacesOperatorsCheck.text
-	linesBeforeFuncCheck.tooltip_text = linesBeforeFuncCheck.text
+	clean_empty_lines_check.tooltip_text = clean_empty_lines_check.text
+	end_of_lines_check.tooltip_text = end_of_lines_check.text
+	end_of_script_check.tooltip_text = end_of_script_check.text
+	spaces_operators_check.tooltip_text = spaces_operators_check.text
 	beauty = Beauty.new()
 
 
@@ -45,7 +47,7 @@ func _on_script_changed(script: Script):
 ## Beautifies the current script.
 func _on_beautify_pressed():
 	var source_lines: Array[String]
-	
+
 	if Engine.is_editor_hint():
 		# Get unsaved code from the editor widget
 		var code_edit = script_editor.get_current_editor().get_base_editor()
@@ -54,41 +56,48 @@ func _on_beautify_pressed():
 		# Fallback for non-editor context (tests)
 		source_lines = Array(Array(current_script.source_code.split("\n")), TYPE_STRING, "", null)
 
-	if spacesOperatorsCheck.button_pressed:
+	if spaces_operators_check.button_pressed:
 		source_lines = beauty.apply_cleaners(source_lines)
-	if linesBeforeFuncCheck.button_pressed:
-		source_lines = beauty.clean_func(source_lines)
-	if cleanEmptyLinesCheck.button_pressed:
+	if lines_before_func_check.button_pressed:
+		source_lines = beauty.clean_func(source_lines, lines_before_func)
+	if clean_empty_lines_check.button_pressed:
 		source_lines = beauty.clean_empty_lines(source_lines)
-	if endOfScriptCheck.button_pressed:
+	if end_of_script_check.button_pressed:
 		source_lines = beauty.clean_end_of_script(source_lines)
-	if endOfLinesCheck.button_pressed:
+	if end_of_lines_check.button_pressed:
 		source_lines = beauty.clean_end_of_lines(source_lines)
 	_update_code(source_lines)
 
 
 func _on_end_of_lines_check_toggled(button_pressed):
 	if button_pressed:
-		cleanEmptyLinesCheck.button_pressed = true
+		clean_empty_lines_check.button_pressed = true
 
 
 func _on_clean_empty_lines_check_toggled(button_pressed):
 	if not button_pressed:
-		endOfLinesCheck.button_pressed = false
+		end_of_lines_check.button_pressed = false
 
 
 func _on_toggle(button_pressed):
+	lines_before_func_count.editable = lines_before_func_check.button_pressed
+	_save_preferences()
+
+
+func _on_lines_before_func_count_value_changed(value: float) -> void:
+	lines_before_func = clampi(int(lines_before_func_count.value), 0, 9)
 	_save_preferences()
 
 
 ## Saves the addon preferences in a config file.
 func _save_preferences():
 	var config_file = ConfigFile.new()
-	config_file.set_value("prefs", "spacesOperatorsCheck", spacesOperatorsCheck.button_pressed)
-	config_file.set_value("prefs", "linesBeforeFuncCheck", linesBeforeFuncCheck.button_pressed)
-	config_file.set_value("prefs", "cleanEmptyLinesCheck", cleanEmptyLinesCheck.button_pressed)
-	config_file.set_value("prefs", "endOfScriptCheck", endOfScriptCheck.button_pressed)
-	config_file.set_value("prefs", "endOfLinesCheck", endOfLinesCheck.button_pressed)
+	config_file.set_value("prefs", "spaces_operators_check", spaces_operators_check.button_pressed)
+	config_file.set_value("prefs", "lines_before_func_check", lines_before_func_check.button_pressed)
+	config_file.set_value("prefs", "clean_empty_lines_check", clean_empty_lines_check.button_pressed)
+	config_file.set_value("prefs", "end_of_script_check", end_of_script_check.button_pressed)
+	config_file.set_value("prefs", "end_of_lines_check", end_of_lines_check.button_pressed)
+	config_file.set_value("prefs", "lines_before_func_count", lines_before_func)
 	var err = config_file.save("res://addons/GDBeautifier/prefs.cfg")
 
 
@@ -98,11 +107,13 @@ func _load_preferences():
 	var err = config_file.load("res://addons/GDBeautifier/prefs.cfg")
 	if err != OK:
 		return
-	spacesOperatorsCheck.button_pressed = config_file.get_value("prefs", "spacesOperatorsCheck", true)
-	linesBeforeFuncCheck.button_pressed = config_file.get_value("prefs", "linesBeforeFuncCheck", true)
-	cleanEmptyLinesCheck.button_pressed = config_file.get_value("prefs", "cleanEmptyLinesCheck", true)
-	endOfScriptCheck.button_pressed = config_file.get_value("prefs", "endOfScriptCheck", true)
-	endOfLinesCheck.button_pressed = config_file.get_value("prefs", "endOfLinesCheck", true)
+	spaces_operators_check.button_pressed = config_file.get_value("prefs", "spaces_operators_check", true)
+	lines_before_func_check.button_pressed = config_file.get_value("prefs", "lines_before_func_check", true)
+	clean_empty_lines_check.button_pressed = config_file.get_value("prefs", "clean_empty_lines_check", true)
+	end_of_script_check.button_pressed = config_file.get_value("prefs", "end_of_script_check", true)
+	end_of_lines_check.button_pressed = config_file.get_value("prefs", "end_of_lines_check", true)
+	lines_before_func = config_file.get_value("prefs", "lines_before_func_count", lines_before_func)
+	lines_before_func_count.value = lines_before_func
 
 
 ## Update the code in the script editor.

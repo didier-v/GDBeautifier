@@ -11,14 +11,14 @@ var replacement: String
 var add_first_char: bool
 
 
-func _init(i_regex:String, i_replacement: String, i_add_first_char: bool):
+func _init(i_regex: String, i_replacement: String, i_add_first_char: bool):
 	regex_pattern = i_regex
 	replacement = i_replacement
 	add_first_char = i_add_first_char
 	regex = RegEx.new()
 	regex.compile(regex_pattern)
-	
+
 
 
 func _to_string():
-	return "regex:/%s/, replacement:'%s', add_fist_char:%s "%[regex, replacement, add_first_char]
+	return "regex:/%s/, replacement:'%s', add_first_char:%s "%[regex, replacement, add_first_char]

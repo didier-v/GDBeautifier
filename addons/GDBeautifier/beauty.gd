@@ -83,38 +83,87 @@ func clean_end_of_script(source_lines: Array[String]) -> Array[String]:
 	return source_lines
 
 
-## Checks that there are exactly two empty lines above functions (and above function comments).
-func clean_func(source_lines: Array[String]) -> Array[String]:
-	#A any line
-	#F func
-	#C comment
-	#E empty
-	#expected result:  EEC*F
+## Checks that there are exactly `empty_lines_count` empty lines above functions (and above function comments).
+func clean_func(source_lines: Array[String], empty_lines_count: int = 2) -> Array[String]:
+	var i = source_lines.size() - 1
 
-	var func_index = -1
-	var i = source_lines.size()
 	while i >= 0:
-		i -= 1
 		var line = source_lines[i]
+
+		# Look for a function line
 		if line.begins_with("func "):
-			func_index = i
-		if i == func_index - 1:
-			if line.begins_with("#"):
-				func_index = i
-			elif not line.is_empty():
-				source_lines.insert(i + 1, "")
-				source_lines.insert(i + 1, "")
-				func_index += 2
-		elif i == func_index - 2:
-			if not line.is_empty():
-				source_lines.insert(i + 1, "")
-				func_index += 1
-		elif i == func_index - 3:
-			if line.is_empty():
-				source_lines.remove_at(i)
-				func_index -= 1
-				pass
+			var func_index = i
+			var comment_count = 0
+			# Count immediate comments before the function
+			while func_index - 1 - comment_count >= 0:
+				var prev_line = source_lines[func_index - 1 - comment_count]
+				if prev_line.begins_with("#"):
+					comment_count += 1
+				else:
+					break
+			# Index of the first line of the block (function + comments)
+			var block_start = func_index - comment_count
+			# Count empty lines BEFORE the block (going upwards)
+			var empty_lines_before = 0
+			while block_start - 1 - empty_lines_before >= 0:
+				var line_before = source_lines[block_start - 1 - empty_lines_before]
+				if line_before.is_empty():
+					empty_lines_before += 1
+				else:
+					break
+			var empty_lines_to_add = empty_lines_count - empty_lines_before
+			var empty_lines_to_remove = empty_lines_before - empty_lines_count
+
+			# Remove excess empty lines
+			if empty_lines_to_remove > 0:
+				for _j in range(empty_lines_to_remove):
+					source_lines.remove_at(block_start - 1)
+					block_start -= 1
+
+			# Add missing empty lines
+			if empty_lines_to_add > 0:
+				for _j in range(empty_lines_to_add):
+					source_lines.insert(block_start, "")
+
+			i = block_start - 1 # Updates the index to the line before the block
+		else:
+			i -= 1
+
 	return source_lines
+
+
+## Checks that there are exactly two empty lines above functions (and above function comments).
+#func clean_func(source_lines: Array[String]) -> Array[String]:
+	##A any line
+	##F func
+	##C comment
+	##E empty
+	##expected result:  EEC*F
+#
+	#var func_index = -1
+	#var i = source_lines.size()
+	#while i >= 0:
+		#i -= 1
+		#var line = source_lines[i]
+		#if line.begins_with("func "):
+			#func_index = i
+		#if i == func_index - 1:
+			#if line.begins_with("#"):
+				#func_index = i
+			#elif not line.is_empty():
+				#source_lines.insert(i + 1, "")
+				#source_lines.insert(i + 1, "")
+				#func_index += 2
+		#elif i == func_index - 2:
+			#if not line.is_empty():
+				#source_lines.insert(i + 1, "")
+				#func_index += 1
+		#elif i == func_index - 3:
+			#if line.is_empty():
+				#source_lines.remove_at(i)
+				#func_index -= 1
+				#pass
+	#return source_lines
 
 
 ## Cleans the source code by applying each defined cleaner on each line.
