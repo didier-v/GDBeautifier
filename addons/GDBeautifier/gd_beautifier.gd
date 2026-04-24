@@ -1,6 +1,8 @@
 @tool
 extends VBoxContainer
 
+class_name GDBeautifierScene
+
 ## The script editor singleton
 var script_editor: ScriptEditor = null: set = _set_script_editor
 ## The current script in the editor
